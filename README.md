@@ -37,6 +37,11 @@ Creates a timestamped directory in `/tmp` with:
 - `full-pipeline-summary.txt`: Latest pipeline status and all jobs
 - `job-logs/`: Directory with individual log files for each job
 
+## Requirements
+
+- Python 3.12+
+- `glab` CLI installed and configured
+
 ## Example Output
 
 ### Successful Pipeline
@@ -80,8 +85,3 @@ Failed Jobs (2):
 
 All files in: /tmp/glab-mr-456-20251125_105320
 ```
-
-## Requirements
-
-- Python 3.12+
-- `glab` CLI installed and configured
