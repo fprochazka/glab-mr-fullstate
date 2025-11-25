@@ -232,12 +232,25 @@ class MRFullStateFetcher:
                 body = comment.get("body", "")
                 note_type = comment.get("type", "")
                 system = comment.get("system", False)
+                position = comment.get("position")
 
                 f.write(f"[{idx}] {author} - {created_at}\n")
                 if system:
                     f.write("[SYSTEM NOTE]\n")
                 if note_type:
                     f.write(f"Type: {note_type}\n")
+
+                # Add code position if available
+                if position:
+                    commit = position.get("head_sha", "")[:8]  # Short SHA
+                    file_path = position.get("new_path") or position.get("old_path", "")
+                    line_num = position.get("new_line") or position.get("old_line")
+                    if commit and file_path:
+                        f.write(f"Code: {commit} {file_path}")
+                        if line_num:
+                            f.write(f":{line_num}")
+                        f.write("\n")
+
                 f.write("-" * 80 + "\n")
                 f.write(body)
                 f.write("\n\n" + "=" * 80 + "\n\n")
@@ -254,12 +267,25 @@ class MRFullStateFetcher:
                 body = comment.get("body", "")
                 note_type = comment.get("type", "")
                 system = comment.get("system", False)
+                position = comment.get("position")
 
                 f.write(f"[{idx}] {author} - {created_at}\n")
                 if system:
                     f.write("[SYSTEM NOTE]\n")
                 if note_type:
                     f.write(f"Type: {note_type}\n")
+
+                # Add code position if available
+                if position:
+                    commit = position.get("head_sha", "")[:8]  # Short SHA
+                    file_path = position.get("new_path") or position.get("old_path", "")
+                    line_num = position.get("new_line") or position.get("old_line")
+                    if commit and file_path:
+                        f.write(f"Code: {commit} {file_path}")
+                        if line_num:
+                            f.write(f":{line_num}")
+                        f.write("\n")
+
                 f.write("-" * 80 + "\n")
                 f.write(body)
                 f.write("\n\n" + "=" * 80 + "\n\n")
