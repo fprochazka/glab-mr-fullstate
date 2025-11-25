@@ -37,6 +37,32 @@ Creates a timestamped directory in `/tmp` with:
 - `full-pipeline-summary.txt`: Latest pipeline status and all jobs
 - `job-logs/`: Directory with individual log files for each job
 
+## Example Output
+
+```
+MR Information:
+  Title: feat: Add user authentication
+  Author: John Doe
+  State: opened
+  URL: https://gitlab.example.com/myorg/myproject/-/merge_requests/123
+
+Files Created:
+  MR Info:               /tmp/glab-mr-123-20251125_104940/mr-info.txt
+  Comments (resolved):   /tmp/glab-mr-123-20251125_104940/comments-resolved.txt (42 comments)
+  Comments (unresolved): /tmp/glab-mr-123-20251125_104940/comments-unresolved.txt (3 comments)
+  Pipeline:              /tmp/glab-mr-123-20251125_104940/full-pipeline-summary.txt (status: success)
+
+All files in: /tmp/glab-mr-123-20251125_104940
+```
+
+If there are failed jobs, they will be displayed prominently:
+
+```
+Failed Jobs (2):
+  unit-tests: /tmp/glab-mr-123-20251125_104940/job-logs/unit-tests-2803156.log
+  integration-tests: /tmp/glab-mr-123-20251125_104940/job-logs/integration-tests-2803157.log
+```
+
 ## Requirements
 
 - Python 3.12+
