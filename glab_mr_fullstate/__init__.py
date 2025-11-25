@@ -120,7 +120,8 @@ class MRFullStateFetcher:
 
         # Output files
         self.mr_info_file = self.output_dir / "mr-info.txt"
-        self.comments_file = self.output_dir / "comments.txt"
+        self.comments_resolved_file = self.output_dir / "comments-resolved.txt"
+        self.comments_unresolved_file = self.output_dir / "comments-unresolved.txt"
         self.pipeline_summary_file = self.output_dir / "full-pipeline-summary.txt"
         self.jobs_dir = self.output_dir / "job-logs"
         self.jobs_dir.mkdir(exist_ok=True)
@@ -202,13 +203,52 @@ class MRFullStateFetcher:
             self.print_color(f"Error parsing comments: {e}", Colors.RED)
             return
 
-        # Write comments to file
-        with open(self.comments_file, "w") as f:
+        # Split comments into resolved and unresolved
+        # If comment is not a resolvable thread (type != "DiffNote"), it goes to resolved
+        resolved_comments = []
+        unresolved_comments = []
+
+        for comment in self.comments:
+            note_type = comment.get("type")
+            resolvable = comment.get("resolvable", False)
+            resolved = comment.get("resolved", False)
+
+            # If it's not a resolvable type (DiffNote), treat as resolved
+            # OR if it's resolvable and actually resolved
+            if not resolvable or resolved:
+                resolved_comments.append(comment)
+            else:
+                unresolved_comments.append(comment)
+
+        # Write resolved comments
+        with open(self.comments_resolved_file, "w") as f:
             f.write("=" * 80 + "\n")
-            f.write(f"MERGE REQUEST COMMENTS AND NOTES (Total: {len(self.comments)})\n")
+            f.write(f"RESOLVED COMMENTS AND NOTES (Total: {len(resolved_comments)})\n")
             f.write("=" * 80 + "\n\n")
 
-            for idx, comment in enumerate(self.comments, 1):
+            for idx, comment in enumerate(resolved_comments, 1):
+                author = comment.get("author", {}).get("name", "Unknown")
+                created_at = comment.get("created_at", "Unknown")
+                body = comment.get("body", "")
+                note_type = comment.get("type", "")
+                system = comment.get("system", False)
+
+                f.write(f"[{idx}] {author} - {created_at}\n")
+                if system:
+                    f.write("[SYSTEM NOTE]\n")
+                if note_type:
+                    f.write(f"Type: {note_type}\n")
+                f.write("-" * 80 + "\n")
+                f.write(body)
+                f.write("\n\n" + "=" * 80 + "\n\n")
+
+        # Write unresolved comments
+        with open(self.comments_unresolved_file, "w") as f:
+            f.write("=" * 80 + "\n")
+            f.write(f"UNRESOLVED COMMENTS AND NOTES (Total: {len(unresolved_comments)})\n")
+            f.write("=" * 80 + "\n\n")
+
+            for idx, comment in enumerate(unresolved_comments, 1):
                 author = comment.get("author", {}).get("name", "Unknown")
                 created_at = comment.get("created_at", "Unknown")
                 body = comment.get("body", "")
@@ -225,7 +265,10 @@ class MRFullStateFetcher:
                 f.write("\n\n" + "=" * 80 + "\n\n")
 
         if self.is_interactive:
-            self.print_color(f"✓ {len(self.comments)} comments saved to: {self.comments_file}", Colors.GREEN)
+            self.print_color(
+                f"✓ Comments saved: {len(resolved_comments)} resolved, {len(unresolved_comments)} unresolved",
+                Colors.GREEN,
+            )
 
     async def fetch_pipeline_info(self):
         """Fetch latest pipeline information and job details."""
@@ -371,10 +414,17 @@ class MRFullStateFetcher:
 
         print()
         self.print_color("Files Created:", Colors.CYAN)
-        print(f"  MR Info:         {self.mr_info_file}")
-        print(f"  Comments:        {self.comments_file} ({len(self.comments)} comments)")
+        print(f"  MR Info:            {self.mr_info_file}")
+
+        # Show comment files with counts
+        if self.comments:
+            resolved_count = len([c for c in self.comments if not c.get("resolvable", False) or c.get("resolved", False)])
+            unresolved_count = len(self.comments) - resolved_count
+            print(f"  Comments (resolved):   {self.comments_resolved_file} ({resolved_count} comments)")
+            print(f"  Comments (unresolved): {self.comments_unresolved_file} ({unresolved_count} comments)")
+
         if self.pipeline_data:
-            print(f"  Pipeline:        {self.pipeline_summary_file} (status: {self.pipeline_data.get('status')})")
+            print(f"  Pipeline:           {self.pipeline_summary_file} (status: {self.pipeline_data.get('status')})")
 
         # Show failed jobs
         if self.jobs_data:
