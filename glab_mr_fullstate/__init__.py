@@ -81,7 +81,7 @@ def get_glab_hostnames() -> list[str]:
         return []
 
     try:
-        with open(config_path) as f:
+        with open(config_path, encoding="utf-8") as f:
             config = yaml.safe_load(f)
 
         if not config or "hosts" not in config:
@@ -141,7 +141,7 @@ class MRFullStateFetcher:
             *glab_args, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
         stdout, stderr = await proc.communicate()
-        return stdout.decode(), stderr.decode(), proc.returncode
+        return stdout.decode("utf-8", errors="replace"), stderr.decode("utf-8", errors="replace"), proc.returncode
 
     async def fetch_mr_info(self):
         """Fetch MR information using glab mr view."""
@@ -167,7 +167,7 @@ class MRFullStateFetcher:
         stdout_view, _, _ = await self.run_glab("mr", "view", self.mr_id)
 
         # Write both formats to file
-        with open(self.mr_info_file, "w") as f:
+        with open(self.mr_info_file, "w", encoding="utf-8") as f:
             f.write("=" * 80 + "\n")
             f.write("MERGE REQUEST INFORMATION\n")
             f.write("=" * 80 + "\n\n")
@@ -221,7 +221,7 @@ class MRFullStateFetcher:
                 unresolved_comments.append(comment)
 
         # Write resolved comments
-        with open(self.comments_resolved_file, "w") as f:
+        with open(self.comments_resolved_file, "w", encoding="utf-8") as f:
             f.write("=" * 80 + "\n")
             f.write(f"RESOLVED COMMENTS AND NOTES (Total: {len(resolved_comments)})\n")
             f.write("=" * 80 + "\n\n")
@@ -243,7 +243,7 @@ class MRFullStateFetcher:
                 f.write("\n\n" + "=" * 80 + "\n\n")
 
         # Write unresolved comments
-        with open(self.comments_unresolved_file, "w") as f:
+        with open(self.comments_unresolved_file, "w", encoding="utf-8") as f:
             f.write("=" * 80 + "\n")
             f.write(f"UNRESOLVED COMMENTS AND NOTES (Total: {len(unresolved_comments)})\n")
             f.write("=" * 80 + "\n\n")
@@ -304,7 +304,7 @@ class MRFullStateFetcher:
             return
 
         # Write pipeline summary
-        with open(self.pipeline_summary_file, "w") as f:
+        with open(self.pipeline_summary_file, "w", encoding="utf-8") as f:
             f.write("=" * 80 + "\n")
             f.write("PIPELINE SUMMARY\n")
             f.write("=" * 80 + "\n\n")
@@ -360,7 +360,7 @@ class MRFullStateFetcher:
             stdout, stderr, code = await self.run_glab("api", f"projects/{project_id}/jobs/{job_id}/trace")
 
             if code == 0:
-                with open(log_file, "w") as f:
+                with open(log_file, "w", encoding="utf-8") as f:
                     f.write(f"Job: {job_name}\n")
                     f.write(f"ID: {job_id}\n")
                     f.write(f"Status: {job_status}\n")
@@ -368,7 +368,7 @@ class MRFullStateFetcher:
                     f.write("=" * 80 + "\n\n")
                     f.write(stdout)
             else:
-                with open(log_file, "w") as f:
+                with open(log_file, "w", encoding="utf-8") as f:
                     f.write(f"Job: {job_name}\n")
                     f.write(f"ID: {job_id}\n")
                     f.write(f"Status: {job_status}\n")

@@ -39,6 +39,8 @@ Creates a timestamped directory in `/tmp` with:
 
 ## Example Output
 
+### Successful Pipeline
+
 ```
 MR Information:
   Title: feat: Add user authentication
@@ -55,12 +57,28 @@ Files Created:
 All files in: /tmp/glab-mr-123-20251125_104940
 ```
 
-If there are failed jobs, they will be displayed prominently:
+### Failed Pipeline
+
+When jobs fail, they are prominently displayed with direct links to logs:
 
 ```
+MR Information:
+  Title: fix: Update database schema
+  Author: Jane Smith
+  State: opened
+  URL: https://gitlab.example.com/myorg/myproject/-/merge_requests/456
+
+Files Created:
+  MR Info:               /tmp/glab-mr-456-20251125_105320/mr-info.txt
+  Comments (resolved):   /tmp/glab-mr-456-20251125_105320/comments-resolved.txt (18 comments)
+  Comments (unresolved): /tmp/glab-mr-456-20251125_105320/comments-unresolved.txt (2 comments)
+  Pipeline:              /tmp/glab-mr-456-20251125_105320/full-pipeline-summary.txt (status: failed)
+
 Failed Jobs (2):
-  unit-tests: /tmp/glab-mr-123-20251125_104940/job-logs/unit-tests-2803156.log
-  integration-tests: /tmp/glab-mr-123-20251125_104940/job-logs/integration-tests-2803157.log
+  unit-tests: /tmp/glab-mr-456-20251125_105320/job-logs/unit-tests-2803156.log
+  integration-tests: /tmp/glab-mr-456-20251125_105320/job-logs/integration-tests-2803157.log
+
+All files in: /tmp/glab-mr-456-20251125_105320
 ```
 
 ## Requirements
