@@ -32,7 +32,8 @@ It must be run from within a Git repository that has an open merge request.
 
 Creates a timestamped directory in `/tmp` with:
 - `mr-info.txt`: Full MR details (human-readable and JSON)
-- `comments.txt`: All comments and notes
+- `comments-resolved.txt`: Resolved threads and non-resolvable comments
+- `comments-unresolved.txt`: Active unresolved discussion threads
 - `full-pipeline-summary.txt`: Latest pipeline status and all jobs
 - `job-logs/`: Directory with individual log files for each job
 
