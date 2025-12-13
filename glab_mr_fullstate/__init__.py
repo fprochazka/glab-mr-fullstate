@@ -133,6 +133,13 @@ class MRFullStateFetcher:
         else:
             print(message)
 
+    def get_job_log_path(self, job: dict) -> Path:
+        """Get the log file path for a given job."""
+        job_id = job.get("id")
+        job_name = job.get("name", "unknown")
+        safe_name = re.sub(r"[^a-zA-Z0-9._-]", "_", job_name)
+        return self.jobs_dir / f"{safe_name}-{job_id}.log"
+
     async def run_glab(self, *args) -> tuple[str, str, int]:
         """Run glab command and return stdout, stderr, and return code."""
         glab_args = ["glab", *args]
@@ -345,6 +352,8 @@ class MRFullStateFetcher:
             f.write("=" * 80 + "\n\n")
 
             for job in self.jobs_data:
+                log_file = self.get_job_log_path(job)
+
                 f.write(f"Job: {job.get('name')}\n")
                 f.write(f"  ID: {job.get('id')}\n")
                 f.write(f"  Status: {job.get('status')}\n")
@@ -356,6 +365,7 @@ class MRFullStateFetcher:
                 if job.get("finished_at"):
                     f.write(f"  Finished: {job.get('finished_at')}\n")
                 f.write(f"  Web URL: {job.get('web_url')}\n")
+                f.write(f"  Log File: {log_file}\n")
                 f.write("\n")
 
         if self.is_interactive:
@@ -374,9 +384,7 @@ class MRFullStateFetcher:
             job_name = job.get("name", "unknown")
             job_status = job.get("status", "unknown")
 
-            # Sanitize job name for filename
-            safe_name = re.sub(r"[^a-zA-Z0-9._-]", "_", job_name)
-            log_file = self.jobs_dir / f"{safe_name}-{job_id}.log"
+            log_file = self.get_job_log_path(job)
 
             if self.is_interactive:
                 print(f"  [{idx}/{len(self.jobs_data)}] Fetching log for: {job_name} ({job_status})...", end="\r")
@@ -460,9 +468,7 @@ class MRFullStateFetcher:
                 self.print_color(f"Failed Jobs ({len(failed_jobs)}):", Colors.RED)
                 for job in failed_jobs:
                     job_name = job.get("name", "unknown")
-                    job_id = job.get("id")
-                    safe_name = re.sub(r"[^a-zA-Z0-9._-]", "_", job_name)
-                    log_file = self.jobs_dir / f"{safe_name}-{job_id}.log"
+                    log_file = self.get_job_log_path(job)
                     print(f"  {job_name}: {log_file}")
 
         print()
