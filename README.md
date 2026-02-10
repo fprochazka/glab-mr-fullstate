@@ -13,20 +13,13 @@ A CLI tool to fetch comprehensive GitLab merge request information.
 
 ## Installation
 
-### Using pipx (Recommended)
-
-[pipx](https://pipx.pypa.io/) installs the tool in an isolated environment and makes it globally available:
-
 ```bash
-# Install pipx if you don't have it
-python3 -m pip install --user pipx
-python3 -m pipx ensurepath
-
-# Clone and install glab-mr-fullstate
 git clone <repository-url>
 cd glab-mr-fullstate
-pipx install .
+uv tool install -e .
 ```
+
+Updates are automatic after `git pull`.
 
 ## Usage
 
@@ -38,13 +31,6 @@ glab-mr-fullstate
 
 The tool auto-detects the MR from your current branch using `glab` CLI.
 It must be run from within a Git repository that has an open merge request.
-
-### Updating
-
-If installed with pipx:
-```bash
-pipx upgrade glab-mr-fullstate
-```
 
 ## Output
 
